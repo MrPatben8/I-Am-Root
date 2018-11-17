@@ -1,9 +1,11 @@
 import csv
 from tkinter import filedialog
 from tkinter import *
+from tkinter import ttk
 import json
 from json import JSONEncoder
 import random
+from opencage.geocoder import OpenCageGeocode
 
 class JsonObj():
     def __init__(self, lugaresJson):
@@ -43,7 +45,6 @@ lugares = [Lugar()]
 lugares.clear()
 
 def Lectura(path):
-
     esTemp = False
     if "temperatura" in path:
         esTemp = True
@@ -97,12 +98,15 @@ def Lectura(path):
                 newLugar.fecha.clear()
                 newLugar.fecha.append(newFecha)
                 lugares.append(newLugar)
+    Aplicacion.UpdateLog("Listo!")
 
 def Write():
+    Aplicacion.UpdateLog("Guardando...")
     jsonoutput = JsonObj(lugares)
     outputlocation = filedialog.asksaveasfile(title = "Elija la direccion donde guardar", defaultextension = ".json").name
     with open(outputlocation, "w") as outputtext:
         outputtext.write(jsonoutput.toJSON())  
+    Aplicacion.UpdateLog("Listo! FIN DE COMPILACION")
     
 def Calcular():
     for lugar in lugares:
@@ -119,14 +123,68 @@ def Calcular():
                 fecha.meteo.nubes =  random.randint(25, 100)
             else:
                 fecha.meteo.nubes = 0
+    Aplicacion.UpdateLog("Listo!")
+
+def GetPos():
+    key = '51df2f36d3fc4952a3d460f8fa3a1993'
+    geocoder = OpenCageGeocode(key)
+    for lugar in lugares:
+        print("Obteniendo posicion...")
+        Aplicacion.UpdateLog("Obteniendo posicion...")
+        query = lugar.nombre + ", Chile"
+        ret = geocoder.geocode(query)
+        lugar.lat = ret[0]['geometry']['lat']
+        lugar.long = ret[0]['geometry']['lng']
+        print("Encontrado: ", lugar.nombre)
+        Aplicacion.UpdateLog("Encontrado: " + lugar.nombre)
+
+
+raiz = Tk()
+raiz.geometry('300x300')
+raiz.resizable(width=False,height=False)
+raiz.title('I am Root compiler')
+tinfo = Text(raiz, width=40, height=10)
+tinfo.pack(side=TOP)
+class Aplicacion(): 
+    def __init__(self):
+        #self.tinfo = Text(raiz, width=40, height=10)
+        #self.tinfo.pack(side=TOP)
+        self.boton = ttk.Button(raiz, text='Cargar Temperatura', command=self.algo) #Boton extra no hace nada
+        self.boton.pack(side=LEFT)
+        self.binfo = ttk.Button(raiz, text='Cargar Precipitacion', command=self.verinfo)
+        self.binfo.pack(side=RIGHT)
+        self.bsalir = ttk.Button(raiz, text='Salir', command=raiz.destroy)
+        self.bsalir.pack(side=BOTTOM)
+        self.b1ton = ttk.Button(raiz, text= 'Compilar', command= self.hola)
+        self.b1ton.pack(side=BOTTOM)
+        self.binfo.focus_set()
+        raiz.mainloop()     
+
+    def hola(self):
+        Aplicacion.UpdateLog("Calculando Valores...")
+        Calcular()
+        GetPos()
+        Write()
+
+    def algo(self):
+        Aplicacion.UpdateLog("Cargando Temperaturas...")
+        Lectura(str(filedialog.askopenfilename(title = "Seleccione archivo de Temperaturas")))
+    
+    def btnClick(self):
+        pass
+
+    def verinfo(self):
+        Aplicacion.UpdateLog("Cargando Precipitacion...")
+        Lectura(str(filedialog.askopenfilename(title = "Seleccione archivo de Precipitacion")))
+
+    def UpdateLog(texto):
+        tinfo.insert(INSERT, texto+"\n")
+
+def main():
+    mi_app = Aplicacion()
+    return 0
 
 root = Tk()
 root.withdraw()
-Lectura(str(filedialog.askopenfilename(title = "Seleccione archivo de Temperaturas")))
-Lectura(str(filedialog.askopenfilename(title = "Seleccione archivo de Precipitacion")))
 
-Calcular()
-
-Write()
-
-print("Fechas: ", len(lugares[0].fecha))
+main()
