@@ -4,6 +4,13 @@ from tkinter import *
 import json
 from json import JSONEncoder
 
+class JsonObj():
+    def __init__(self, lugaresJson):
+        self.lugaresJson = lugaresJson
+
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__,sort_keys=True, indent=4)
+
 class Temperatura():
     def __init__(self, maxx=None, minn = None, evaporacion = None): 
         self.maxx = None
@@ -56,15 +63,14 @@ def Lectura(path):
             existeLugar = False
             lugarExistente = 0
             for i in range(len(lugares)):
-            #for lugar in lugares:
                 if lugares[i].nombre == newLugar.nombre:
                     existeLugar = True
                     lugarExistente = i
 
             newFecha = Fecha()
-            newFecha.mes = row[2]   
             newFecha.dia = row[1]
-
+            newFecha.mes = row[2]   
+            
             if existeLugar:
                 newFecha.numDia = len(lugares[lugarExistente].fecha)
                 if esTemp:
@@ -72,6 +78,7 @@ def Lectura(path):
                     lugares[lugarExistente].fecha[newFecha.numDia-1].temp.maxx = row[4]
                 else:
                     lugares[lugarExistente].fecha[newFecha.numDia-1].meteo.precipitacion = row[3]
+
                 lugares[lugarExistente].fecha.append(newFecha)
                 
             else:
@@ -85,45 +92,19 @@ def Lectura(path):
                 lugares.append(newLugar)
 
 def Write():
-    '''
-    name = ["Scott","Larry", "Tim"]
-    website = ["google.com","wikipedia.com","twitter.com"]
-    ffrom = ["Chile", "China", "USA"]
-    
-    data = {}  
-    data['lugares'] = []  
-    fechasjson = {}
-    fechasjson['fecha'] = []
-
-    for t in range(len[lugares]):
-        data['lugares'].append({  
-            'lugar': lugares[t].nombre,
-            'lat':lugares[t].lat,
-            'long':lugares[t].long
-            fechasjson['fecha'].append()
-        })
-
-
-
-    with open('Desktop/data.txt', 'w') as outfile:  
-        json.dump(data, outfile)'''
+    jsonoutput = JsonObj(lugares)
+    outputlocation = filedialog.asksaveasfile(title = "Elija la direccion donde guardar", defaultextension = ".json").name
+    with open(outputlocation, "w") as outputtext:
+        outputtext.write(jsonoutput.toJSON())  
     
 root = Tk()
 root.withdraw()
 Lectura(str(filedialog.askopenfilename(title = "Seleccione archivo de Temperaturas")))
 Lectura(str(filedialog.askopenfilename(title = "Seleccione archivo de Precipitacion")))
 
+#print(lugares[0].fecha[0].temp.maxx)
+#print(lugares[0].fecha[0].meteo.precipitacion)
+
+Write()
+
 print("Lugares: ", len(lugares[5].fecha))
-
-class JsonObj():
-    def __init__(self, lugaresJson):
-        self.lugaresJson = lugaresJson
-
-    def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__,sort_keys=True, indent=4)
-        
-
-jsonoutput = JsonObj(lugares)
-outputlocation = filedialog.asksaveasfile(title = "Elija la direccion donde guardar", defaultextension = ".json").name
-with open(outputlocation, "w") as outputtext:
-    outputtext.write(jsonoutput.toJSON()) 
