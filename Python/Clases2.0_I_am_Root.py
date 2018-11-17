@@ -3,7 +3,7 @@ from tkinter import filedialog
 from tkinter import *
 import json
 from json import JSONEncoder
-
+import random
 
 class JsonObj():
     def __init__(self, lugaresJson):
@@ -104,10 +104,28 @@ def Write():
     with open(outputlocation, "w") as outputtext:
         outputtext.write(jsonoutput.toJSON())  
     
+def Calcular():
+    for lugar in lugares:
+        for fecha in lugar.fecha:
+            newEva = ((int(fecha.temp.maxx) + int(fecha.temp.minn))/2)/24 #mm/dia
+            fecha.temp.evaporacion = newEva
+
+            if int(fecha.temp.maxx) < 0 and int(fecha.meteo.precipitacion) > 0:
+                fecha.meteo.nieve = True
+            else:
+                fecha.meteo.nieve = False
+
+            if int(fecha.temp.maxx) < 20:
+                fecha.meteo.nubes =  random.randint(25, 100)
+            else:
+                fecha.meteo.nubes = 0
+
 root = Tk()
 root.withdraw()
 Lectura(str(filedialog.askopenfilename(title = "Seleccione archivo de Temperaturas")))
 Lectura(str(filedialog.askopenfilename(title = "Seleccione archivo de Precipitacion")))
+
+Calcular()
 
 Write()
 
