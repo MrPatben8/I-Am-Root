@@ -4,6 +4,7 @@ from tkinter import *
 import json
 from json import JSONEncoder
 
+
 class JsonObj():
     def __init__(self, lugaresJson):
         self.lugaresJson = lugaresJson
@@ -42,10 +43,12 @@ lugares = [Lugar()]
 lugares.clear()
 
 def Lectura(path):
+
     esTemp = False
     if "temperatura" in path:
         esTemp = True
         print("Temperatura")
+    
     elif "precipitacion" in path:
         print("Lluvia")
     else:
@@ -56,7 +59,6 @@ def Lectura(path):
     with open( path , "r" ) as f :
         reader = csv.reader(f)
         for row in reader:
-
             newLugar = Lugar()
             newLugar.nombre = row[0]
 
@@ -69,26 +71,31 @@ def Lectura(path):
 
             newFecha = Fecha()
             newFecha.dia = row[1]
-            newFecha.mes = row[2]   
-            
-            if existeLugar:
-                newFecha.numDia = len(lugares[lugarExistente].fecha)
-                if esTemp:
-                    lugares[lugarExistente].fecha[newFecha.numDia-1].temp.minn = row[3]
-                    lugares[lugarExistente].fecha[newFecha.numDia-1].temp.maxx = row[4]
-                else:
-                    lugares[lugarExistente].fecha[newFecha.numDia-1].meteo.precipitacion = row[3]
+            newFecha.mes = row[2]
 
-                lugares[lugarExistente].fecha.append(newFecha)
-                
+            if esTemp:
+                newFecha.temp.minn = row[3]
+                newFecha.temp.maxx = row[4]
             else:
+                newFecha.meteo.precipitacion = row[3]
+
+            if existeLugar:              
+                fechaExiste = False
+                for fechaExistente in lugares[lugarExistente].fecha:
+                    if fechaExistente.mes == newFecha.mes and fechaExistente.dia == newFecha.dia:
+                        fechaExiste = True
+                        if esTemp:
+                            fechaExistente.temp.maxx = newFecha.temp.maxx
+                            fechaExistente.temp.minn = newFecha.temp.minn
+                        else:
+                            fechaExistente.meteo.precipitacion = newFecha.meteo.precipitacion
+
+                if not fechaExiste:        
+                    lugares[lugarExistente].fecha.append(newFecha)
+
+            else:
+                newLugar.fecha.clear()
                 newLugar.fecha.append(newFecha)
-                newLugar.fecha[0].numDia = 0
-                if esTemp:
-                    newLugar.fecha[0].temp.minn = row[3]
-                    newLugar.fecha[0].temp.maxx = row[4]
-                else:
-                    newLugar.fecha[0].meteo.precipitacion = row[3]
                 lugares.append(newLugar)
 
 def Write():
@@ -102,9 +109,6 @@ root.withdraw()
 Lectura(str(filedialog.askopenfilename(title = "Seleccione archivo de Temperaturas")))
 Lectura(str(filedialog.askopenfilename(title = "Seleccione archivo de Precipitacion")))
 
-#print(lugares[0].fecha[0].temp.maxx)
-#print(lugares[0].fecha[0].meteo.precipitacion)
-
 Write()
 
-print("Lugares: ", len(lugares[5].fecha))
+print("Fechas: ", len(lugares[0].fecha))
