@@ -73,14 +73,15 @@ def Lectura(path):
             newFecha = Fecha()
             newFecha.dia = row[1]
             newFecha.mes = row[2]
-
+            newFecha.numDia = 0
             if esTemp:
                 newFecha.temp.minn = row[3]
                 newFecha.temp.maxx = row[4]
             else:
                 newFecha.meteo.precipitacion = row[3]
 
-            if existeLugar:              
+            if existeLugar:
+                newFecha.numDia = len(lugares[lugarExistente].fecha)             
                 fechaExiste = False
                 for fechaExistente in lugares[lugarExistente].fecha:
                     if fechaExistente.mes == newFecha.mes and fechaExistente.dia == newFecha.dia:
@@ -186,5 +187,5 @@ def main():
 
 root = Tk()
 root.withdraw()
-
+#ALGUIEN PORFAVOR TESTEE QUE NUM DIA FUNCIONA NO PUEDO COMPILAR PORQUE ME FALTA EL API
 main()
