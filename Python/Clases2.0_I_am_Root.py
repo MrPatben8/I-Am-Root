@@ -8,13 +8,13 @@ import random
 from opencage.geocoder import OpenCageGeocode
 
 class JsonObj():
-    def __init__(self, lugaresJson):
+    def __init__(self, lugaresJson, duracionDia = None, velocidadEvaporacion = None, velocidadAgua = None, velocidadCrecimiento = None, velocidadMuerte = None):
         self.lugaresJson = lugaresJson
-        self.duracionDia = None
-        self.velocidadEvaporacion = None
-        self.velocidadAgua = None
-        self.velocidadCrecimiento = None
-        self.velocidadMuerte = None
+        self.duracionDia = 1.2
+        self.velocidadEvaporacion = 10
+        self.velocidadAgua = 0.01
+        self.velocidadCrecimiento = 0.075
+        self.velocidadMuerte = 1
 
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__,sort_keys=True, indent=4)
@@ -114,6 +114,7 @@ def Write():
     with open(outputlocation, "w") as outputtext:
         outputtext.write(jsonoutput.toJSON())  
     Aplicacion.UpdateLog("Listo! FIN DE COMPILACION")
+    print("Listo! FIN DE COMPILACION")
     
 def Calcular():
     for lugar in lugares:
@@ -146,6 +147,7 @@ def GetPos():
         Aplicacion.UpdateLog("Encontrado: " + lugar.nombre)
 
 def CalcularDificultad():
+    print("Calculando Dificultad...")
     jsonoutput.duracionDia = 1.2
     jsonoutput.velocidadAgua = 10
     jsonoutput.velocidadCrecimiento = 0.01
@@ -199,5 +201,6 @@ def main():
 
 root = Tk()
 root.withdraw()
-#ALGUIEN PORFAVOR TESTEE QUE NUM DIA FUNCIONA NO PUEDO COMPILAR PORQUE ME FALTA EL API
+
+jsonoutput = JsonObj(lugares)
 main()
