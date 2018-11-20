@@ -43856,5 +43856,10 @@
             "long": -70.907785,
             "nombre": "Punta Arenas"
         }
-    ]
+    ],
+	"duracionDia": 1.2,
+    "velocidadAgua": 10,
+    "velocidadCrecimiento": 0.01,
+    "velocidadEvaporacion": 0.075,
+    "velocidadMuerte": 1
 }

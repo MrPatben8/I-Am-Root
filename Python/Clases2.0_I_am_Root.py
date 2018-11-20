@@ -10,6 +10,11 @@ from opencage.geocoder import OpenCageGeocode
 class JsonObj():
     def __init__(self, lugaresJson):
         self.lugaresJson = lugaresJson
+        self.duracionDia = None
+        self.velocidadEvaporacion = None
+        self.velocidadAgua = None
+        self.velocidadCrecimiento = None
+        self.velocidadMuerte = None
 
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__,sort_keys=True, indent=4)
@@ -104,6 +109,7 @@ def Lectura(path):
 def Write():
     Aplicacion.UpdateLog("Guardando...")
     jsonoutput = JsonObj(lugares)
+    CalcularDificultad()
     outputlocation = filedialog.asksaveasfile(title = "Elija la direccion donde guardar", defaultextension = ".json").name
     with open(outputlocation, "w") as outputtext:
         outputtext.write(jsonoutput.toJSON())  
@@ -139,6 +145,12 @@ def GetPos():
         print("Encontrado: ", lugar.nombre)
         Aplicacion.UpdateLog("Encontrado: " + lugar.nombre)
 
+def CalcularDificultad():
+    jsonoutput.duracionDia = 1.2
+    jsonoutput.velocidadAgua = 10
+    jsonoutput.velocidadCrecimiento = 0.01
+    jsonoutput.velocidadEvaporacion = 0.075
+    jsonoutput.velocidadMuerte = 1
 
 raiz = Tk()
 raiz.geometry('300x300')
